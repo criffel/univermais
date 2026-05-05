@@ -15,16 +15,7 @@ const updateAssessmentSchema = z.object({ id: z.uuid(), title: z.string().min(3)
 
 async function logAction(action: string, metadata: Record<string, unknown>) { const { supabase, user, profile } = await requireProfile(); await supabase.from("activity_logs").insert({ organization_id: profile.organization_id, user_id: user.id, action, metadata }); }
 
-export async function signInAction(formData: FormData): Promise<void> {
-  try {
-    const supabase = await createClient();
-    const { error } = await supabase.auth.signInWithPassword({ email: String(formData.get("email") || ""), password: String(formData.get("password") || "") });
-    if (error) redirect(`/login?error=1&message=${encodeURIComponent(error.message.slice(0, 120))}`);
-    redirect("/dashboard");
-  } catch {
-    redirect("/login?error=1&message=Erro%20interno%20ao%20autenticar");
-  }
-}
+export async function signInAction(formData: FormData): Promise<void> { const supabase = await createClient(); const { error } = await supabase.auth.signInWithPassword({ email: String(formData.get("email") || ""), password: String(formData.get("password") || "") }); if (error) redirect(`/login?error=1&message=${encodeURIComponent(error.message.slice(0, 120))}`); redirect("/dashboard"); }
 export async function signOutAction(): Promise<void> { const supabase = await createClient(); await supabase.auth.signOut(); redirect("/login"); }
 export async function resetPasswordAction(formData: FormData): Promise<void> { const supabase = await createClient(); await supabase.auth.resetPasswordForEmail(String(formData.get("email")||""), { redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/login` }); redirect("/recuperar-senha?success=1"); }
 
@@ -40,3 +31,4 @@ export async function deletePathAction(formData: FormData): Promise<void> { cons
 export async function createAssessmentAction(formData: FormData): Promise<void> { const parsed = createAssessmentSchema.parse({ title: formData.get("title"), min_score: formData.get("min_score") ?? 70, attempts_allowed: formData.get("attempts_allowed") ?? 2 }); const { supabase, profile } = await requireProfile(); await supabase.from("assessments").insert({ organization_id: profile.organization_id, title: parsed.title, min_score: parsed.min_score, attempts_allowed: parsed.attempts_allowed }); await logAction("assessment.create", { title: parsed.title }); }
 export async function updateAssessmentAction(formData: FormData): Promise<void> { const parsed = updateAssessmentSchema.parse({ id: formData.get("id"), title: formData.get("title"), min_score: formData.get("min_score"), attempts_allowed: formData.get("attempts_allowed") }); const { supabase } = await requireProfile(); await supabase.from("assessments").update({ title: parsed.title, min_score: parsed.min_score, attempts_allowed: parsed.attempts_allowed }).eq("id", parsed.id); await logAction("assessment.update", { id: parsed.id }); }
 export async function deleteAssessmentAction(formData: FormData): Promise<void> { const id = z.uuid().parse(String(formData.get("id")||"")); const { supabase } = await requireProfile(); await supabase.from("assessments").delete().eq("id", id); await logAction("assessment.delete", { id }); }
+

@@ -1,17 +1,17 @@
 ﻿import { createClient } from "@/lib/supabase/server";
 import { signOutAction } from "@/lib/actions";
-import { BarChart3, Bell, BookOpen, ChartPie, CreditCard, GraduationCap, LayoutDashboard, LogOut, MessageSquare, Search, Settings, Users } from "lucide-react";
+import { Bell, BookOpen, ChevronDown, CircleDollarSign, GraduationCap, LayoutDashboard, LogOut, Mail, Search, Settings, Users } from "lucide-react";
 
 const menu = [
-  { label: "Dashboards", icon: LayoutDashboard },
-  { label: "Enrollment", icon: Users },
-  { label: "Course", icon: BookOpen },
-  { label: "Manage Teacher", icon: GraduationCap },
-  { label: "Payment Report", icon: CreditCard },
-  { label: "Message", icon: MessageSquare },
-  { label: "Notification", icon: Bell },
-  { label: "Setting", icon: Settings },
-];
+  ["Dashboards", LayoutDashboard],
+  ["Enrollment", Users],
+  ["Course", BookOpen],
+  ["Manage Teacher", GraduationCap],
+  ["Payment Gateway", CircleDollarSign],
+  ["Message", Mail],
+  ["Notification", Bell],
+  ["Setting", Settings],
+] as const;
 
 export default async function Dashboard() {
   const supabase = await createClient();
@@ -28,87 +28,96 @@ export default async function Dashboard() {
     supabase.from("announcements").select("id", { count: "exact", head: true }).eq("organization_id", orgId),
   ]);
 
-  const stats = [
+  const kpis = [
     ["Total Courses", courses.count ?? 0, "+12.05%"],
-    ["Total Enrollments", enrollments.count ?? 0, "+8.20%"],
-    ["Total Certificates", certs.count ?? 0, "+6.10%"],
-    ["Total Notices", announcements.count ?? 0, "+4.02%"],
+    ["Total Enrolments", enrollments.count ?? 0, "+12.05%"],
+    ["Last Year Earning", "$12,122", "-12.25%"],
+    ["Total Students", certs.count ?? 0, "+12.05%"],
+    ["Total Instructor", announcements.count ?? 0, "+12.05%"],
   ];
 
   return (
-    <main className="min-h-screen p-3 md:p-6">
-      <section className="mx-auto grid max-w-[1400px] gap-4 rounded-3xl border border-black/10 bg-white/95 p-3 md:grid-cols-[250px_1fr] md:p-4">
-        <aside className="card h-fit p-4">
-          <div className="mb-4 flex items-center gap-2">
-            <div className="rounded-xl bg-violet-100 p-2 text-violet-700"><GraduationCap size={18} /></div>
-            <h2 className="text-lg font-semibold">LMS 360</h2>
-          </div>
-          <nav className="space-y-1">
-            {menu.map((m, i) => (
-              <button key={m.label} className={`flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm ${i === 0 ? "bg-violet-100 text-violet-700" : "text-slate-600 hover:bg-slate-100"}`}>
-                <m.icon size={16} />
-                {m.label}
-              </button>
-            ))}
-          </nav>
-          <form action={signOutAction} className="mt-6">
-            <button className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-600"><LogOut size={16} />Logout</button>
-          </form>
-        </aside>
-
-        <div className="space-y-4">
-          <header className="card flex flex-col gap-3 p-4 md:flex-row md:items-center md:justify-between">
-            <div>
-              <h1 className="text-2xl font-bold">LMS Admin Dashboard</h1>
-              <p className="text-sm text-slate-500">Welcome back, {profile?.full_name}</p>
+    <main className="min-h-screen p-2 md:p-6">
+      <section className="mx-auto max-w-[1400px] rounded-[28px] border border-black/10 bg-white/95 p-2 md:p-3">
+        <div className="grid gap-3 md:grid-cols-[220px_1fr]">
+          <aside className="card hidden h-fit p-3 md:block">
+            <div className="mb-4 flex items-center gap-2 px-2">
+              <div className="rounded-lg bg-violet-100 p-2 text-violet-600"><GraduationCap size={16} /></div>
+              <span className="text-sm font-bold">LMS</span>
             </div>
-            <div className="flex items-center gap-2">
-              <button className="rounded-xl border border-slate-200 p-2"><Bell size={16} /></button>
-              <button className="rounded-xl border border-slate-200 p-2"><Search size={16} /></button>
-            </div>
-          </header>
+            <nav className="space-y-1">
+              {menu.map(([label, Icon], i) => (
+                <button key={label} className={`flex w-full items-center justify-between rounded-lg px-2 py-2 text-xs ${i === 0 ? "bg-violet-50 text-violet-700" : "text-slate-600 hover:bg-slate-50"}`}>
+                  <span className="flex items-center gap-2"><Icon size={14} />{label}</span>
+                  <ChevronDown size={12} className="opacity-50" />
+                </button>
+              ))}
+            </nav>
+            <form action={signOutAction} className="mt-4"><button className="flex w-full items-center justify-center gap-2 rounded-lg border border-slate-200 px-2 py-2 text-xs text-slate-600"><LogOut size={14} />Logout</button></form>
+          </aside>
 
-          <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            {stats.map(([k, v, g]) => (
-              <article key={String(k)} className="card p-4">
-                <p className="text-sm text-slate-500">{k}</p>
-                <p className="mt-2 text-3xl font-bold">{String(v)}</p>
-                <p className="mt-1 text-xs text-emerald-600">{String(g)}</p>
-              </article>
-            ))}
-          </section>
-
-          <section className="grid gap-3 xl:grid-cols-[1.5fr_1fr]">
-            <article className="card p-4">
-              <div className="mb-3 flex items-center justify-between"><h3 className="font-semibold">Overview</h3><span className="text-xs text-slate-500">Last 7 Days</span></div>
-              <div className="grid h-44 grid-cols-7 items-end gap-2">
-                {[45, 62, 38, 74, 56, 66, 52].map((h, i) => <div key={i} className="rounded-t-lg bg-violet-500/70" style={{ height: `${h * 1.6}px` }} />)}
+          <div className="space-y-3">
+            <header className="card flex flex-wrap items-center justify-between gap-2 p-3">
+              <div>
+                <h1 className="text-lg font-bold md:text-xl">LMS Admin Dashboard</h1>
+                <p className="text-xs text-slate-500">{profile?.full_name}</p>
               </div>
-            </article>
-            <article className="card p-4">
-              <h3 className="mb-3 font-semibold">Top Instructors</h3>
-              <ul className="space-y-2 text-sm">
-                {["Jane Doe", "Linda Davis", "Susan Hall", "Thomas"].map((n, i) => (
-                  <li key={n} className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2">
-                    <span>{n}</span><span className="text-violet-600">{[69,88,65,50][i]}%</span>
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-4 flex items-center justify-center"><ChartPie className="text-violet-500" size={90} /></div>
-            </article>
-          </section>
+              <div className="flex items-center gap-2 text-xs">
+                <button className="soft px-3 py-1">USD</button>
+                <button className="soft px-3 py-1">Eng</button>
+                <button className="soft p-2"><Bell size={14} /></button>
+                <button className="soft p-2"><Search size={14} /></button>
+              </div>
+            </header>
 
-          <section className="card overflow-auto p-4">
-            <h3 className="mb-3 font-semibold">Best Selling Courses</h3>
-            <table className="w-full min-w-[640px] text-sm">
-              <thead className="text-left text-slate-500"><tr><th className="py-2">Course</th><th>Instructor</th><th>Sales</th><th>Amount</th></tr></thead>
-              <tbody>
-                {["Starting Online Courses", "Deploy Career in Short Courses", "Complete Java Program", "Training and Learning"].map((c, i) => (
-                  <tr key={c} className="border-t border-slate-100"><td className="py-3">{c}</td><td>{["Jane Doe","Mary Johnson","Linda Davis","Patricia Taylor"][i]}</td><td>{[200,300,190,350][i]}</td><td>${[900,1500,650,1860][i]}</td></tr>
-                ))}
-              </tbody>
-            </table>
-          </section>
+            <section className="grid gap-2 sm:grid-cols-2 xl:grid-cols-5">
+              {kpis.map(([t, v, g]) => (
+                <article key={String(t)} className="card p-3">
+                  <p className="text-[11px] text-slate-500">{t}</p>
+                  <p className="mt-1 text-2xl font-bold">{String(v)}</p>
+                  <p className={`mt-1 text-[11px] ${String(g).startsWith("-") ? "text-rose-500" : "text-emerald-500"}`}>{String(g)}</p>
+                </article>
+              ))}
+            </section>
+
+            <section className="grid gap-3 xl:grid-cols-[1.55fr_1fr]">
+              <article className="card p-3">
+                <div className="mb-2 flex items-center justify-between"><h3 className="text-sm font-semibold">Overview</h3><span className="soft px-2 py-1 text-[11px]">Last 7 Days</span></div>
+                <div className="grid h-40 grid-cols-7 items-end gap-2">
+                  {[60, 90, 55, 110, 70, 95, 80].map((h, i) => <div key={i} className="rounded-t-md bg-violet-500/75" style={{ height: `${h}px` }} />)}
+                </div>
+              </article>
+              <article className="card p-3">
+                <h3 className="mb-2 text-sm font-semibold">Revenue Statics</h3>
+                <div className="grid h-40 grid-cols-12 items-end gap-1">
+                  {[35,44,28,60,40,36,52,57,49,62,55,58].map((h, i) => <div key={i} className="rounded-t bg-indigo-300/70" style={{ height: `${h}px` }} />)}
+                </div>
+              </article>
+            </section>
+
+            <section className="grid gap-3 xl:grid-cols-[1.6fr_1fr]">
+              <article className="card overflow-auto p-3">
+                <h3 className="mb-2 text-sm font-semibold">Best Selling Courses</h3>
+                <table className="w-full min-w-[640px] text-xs">
+                  <thead><tr className="text-left text-slate-500"><th className="py-2">Course Name</th><th>Instructor</th><th>Sales</th><th>Amount</th></tr></thead>
+                  <tbody>
+                    {["Starting Online Courses & Build your Skills","Deploy Career in a Short Online Courses","Complete Java Program Online Courses","Training and Learning Online"].map((c, i) => (
+                      <tr key={c} className="border-t border-slate-100"><td className="py-2">{c}</td><td>{["Jane Doe","Mary Johnson","Linda Davis","Patricia Taylor"][i]}</td><td>{[200,300,190,350][i]}</td><td>${[900,1500,650,1860][i]}</td></tr>
+                    ))}
+                  </tbody>
+                </table>
+              </article>
+              <article className="card p-3">
+                <h3 className="mb-2 text-sm font-semibold">Top Selling Instructor</h3>
+                <div className="mx-auto my-3 h-36 w-36 rounded-full border-[16px] border-violet-200 border-t-violet-500 border-r-emerald-400 border-b-orange-400" />
+                <ul className="space-y-1 text-xs">
+                  {["Jane Doe","Linda Davis","Susan Hall","Thomas","Elizabeth","Robert"].map((n, i) => (
+                    <li key={n} className="flex items-center justify-between"><span className="text-slate-600">{n}</span><span className="text-violet-600">{[69,88,65,50,48,32][i]}%</span></li>
+                  ))}
+                </ul>
+              </article>
+            </section>
+          </div>
         </div>
       </section>
     </main>

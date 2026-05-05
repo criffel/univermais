@@ -1,22 +1,12 @@
 ﻿@import "tailwindcss";
 
-:root {
-  --bg: #eef2ff;
-  --fg: #0f172a;
-}
-
+:root { --bg: #0b0d14; --fg: #eef1ff; }
 body {
   color: var(--fg);
   background:
-    radial-gradient(70rem 40rem at -10% -20%, rgba(37, 99, 235, 0.18), transparent 60%),
-    radial-gradient(65rem 35rem at 120% -10%, rgba(99, 102, 241, 0.22), transparent 60%),
-    linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
+    radial-gradient(80rem 50rem at -10% -20%, rgba(139, 92, 246, 0.22), transparent 55%),
+    radial-gradient(80rem 50rem at 120% 120%, rgba(59, 130, 246, 0.15), transparent 55%),
+    #0b0d14;
 }
-
-.card {
-  @apply rounded-3xl border border-slate-200/70 bg-white/80 shadow-[0_20px_60px_-30px_rgba(30,64,175,.45)] backdrop-blur;
-}
-
-.glass-dark {
-  @apply rounded-3xl border border-white/15 bg-slate-950/80 shadow-2xl backdrop-blur-xl;
-}
+.card { @apply rounded-3xl border border-white/10 bg-white/5 shadow-[0_20px_60px_-40px_rgba(0,0,0,.8)] backdrop-blur; }
+.glass-dark { @apply rounded-3xl border border-white/10 bg-[#0f1220]/85 shadow-2xl backdrop-blur-xl; }
